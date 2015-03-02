@@ -1,32 +1,39 @@
+##BE CAREFUL IT MIGHT NOT CLOSE
+
 import pygame
 from pygame.locals import *
 
 pygame.init()
 
-    #initial contidions
+# initial conditions
 
 clock = pygame.time.Clock()
+
+SCREEN = pygame.display.set_mode((500,500))
+
+
+# Define some colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GREEN = (0, 170, 0)
 
 done = False
 
 while not done:
-
-    SCREEN = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-    scr_w, scr_h = SCREEN.get_size()
-
-        #input
     for event in pygame.event.get():
-        if event.type == pygame.QUIT: #if user presses the x button
+        if event.type == pygame.QUIT:   # If user clicked close
             done = True
-        elif event.type == KEYDOWN:
-            if event.key == K_ESCAPE:
-                pygame.event.post(pygame.event.Event(QUIT)) #escape is an escape
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:   # escape key is an escape
+                done = True
 
-    #workings
+    # workings
 
-    #drawing
-    screen.fill(BLACK)
-    pygame.display.flip()   #actually draws all that stuff.
-    clock.tick(60)  #limits FPS
-#if done becomes true:
+    # drawing
+    SCREEN.fill(GREEN)
+
+    pygame.display.flip()  # actually draws all that stuff.
+    clock.tick(60)  # limits FPS
+
+# if done becomes true:
 pygame.quit
