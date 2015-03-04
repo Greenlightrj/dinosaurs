@@ -1,75 +1,108 @@
-import pygame   # yay pygame
+import pygame                                           # yay pygame
 
-pygame.init()  # starts the... uh... game.
+pygame.init()                                           # starts the... uh... game.
 
-#------- initial conditions -------
+# ------- initial conditions -------
 
-# lets us tick forward time without depending on computer lag
-clock = pygame.time.Clock()
+clock = pygame.time.Clock()                             # lets us tick forward time without depending on computer lag
 
-screenx = 500   # sets width of screen (as a variable so we can use it later)
-screeny = 500   # sets width
-# makes screen thing so we can make it green later
-SCREEN = pygame.display.set_mode((screenx, screeny))
-
-# Define colors so we can use them later
-WHITE = (255, 255, 255)
+screenx = 500                                           # sets width of screen (as a variable so we can use it later)
+screeny = 500                                           # sets height
+SCREEN = pygame.display.set_mode((screenx, screeny))    # makes screen thing so we can make it green later
+                                                        
+WHITE = (255, 255, 255)                                 # Define colors so we can use them later
 BLACK = (0, 0, 0)
 GREEN = (0, 170, 0)
 
-image = pygame.image.load("plain_longneck.png")     # sets dinosaur image
-# gets size of image so we know where the edges are
-img_w, img_h = image.get_size()
+image = pygame.image.load("transparent_longneck.png")   # sets dinosaur image
+img_w, img_h = image.get_size()                         # gets size of image so we know where the edges are
 
-dinosaurs = []  # initializes list of dinosaurs
+dinosaurs = []                                          # initializes list of dinosaurs
 
 
 class Dino():
-    def __init__(self, x, y):   # dinos start alive with 0 hunger
+    def __init__(self, x, y):
+        """
+        dinos start alive with 1 hunger
+        """
         self.alive = True
-        self.hunger = 0
+        self.hunger = 1
         self.x = x
         self.y = y
         self.xspeed = 1
         self.yspeed = 1
+        self.speed = 1
 
-    def speed(self):    # in the future this will make hungry dinos faster
-        self.xspeed = 1
-        self.yspeed = 1
+    def rush(self):
+        """
+        updates dinosaur speed based on hunger level
+        """
+        self.speed = self.hunger/30.0 + 0.5
 
     def walk(self):
-        if self.x >= screenx-50 or self.x < 10:
-            self.xspeed = self.xspeed*-1
-        if self.y > screeny-50 or self.y < 10:
-            self.yspeed = -1 * self.yspeed
+        """
+        updates position of dinosaur based on speed
+        makes dinosaur bounce off walls
+        """
+        if self.x > screenx-40:             # bounce off right edge
+            self.xspeed = -1*self.speed
+        elif self.x < 1:                    # bounce off left edge
+            self.xspeed = 1*self.speed
+        else:
+            self.xspeed = cmp(self.xspeed, 0)*self.speed  # update speed
+        if self.y < 1:                      # bounce off top edge
+            self.yspeed = 1 * self.speed
+        elif self.y > screeny - 40:         # bounce off bottom edge
+            self.yspeed = -1 * self.speed
+        else:
+            self.yspeed = cmp(self.yspeed, 0)*self.speed  # update speed
         self.x = self.x + self.xspeed
         self.y = self.y + self.yspeed
 
-done = False
+    def starve(self):
+        """
+        updates dinosaur hunger
+        """
+        if self.hunger < 100:
+            self.hunger += 0.03
+        else:
+            self.alive = False
 
-while not done:  # loop all the functions run inside
+    def reaper(self):
+        """
+        gets rid of dead dinosaurs
+        """
+        if self.alive == False:
+            dinosaurs.remove(self)
 
+
+done = False                                # initializes for main while loop
+while not done:
+    """
+    main program loop
+    """
     # takes user input
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:   # If user clicked close
-            done = True                 # gets out of the loop
-        elif event.type == pygame.KEYDOWN:  # If user pressed a key
-            if event.key == pygame.K_ESCAPE:   # escape key is an escape
+        if event.type == pygame.QUIT:               # If user clicked close
+            done = True                             # gets out of the loop
+        elif event.type == pygame.KEYDOWN:          # If user pressed a key
+            if event.key == pygame.K_ESCAPE:        # escape key is an escape
                 done = True
-        # when mouse button is clicked
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if pygame.mouse.get_pressed()[2]:    # right mouse button click
+        elif event.type == pygame.MOUSEBUTTONDOWN:  # when mouse button is clicked
+            if pygame.mouse.get_pressed()[2]:       # right mouse button click
                 dinosaur = Dino(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])   # make a dinosaur
-                dinosaurs.append(dinosaur)  # this line amuses me for no reason
+                dinosaurs.append(dinosaur)          # this line amuses me for no reason
 
-    SCREEN.fill(GREEN)  # makes green background first
+    SCREEN.fill(GREEN)                              # makes green background first
 
-    # inner workings update
-    for dino in dinosaurs:     # loops through list of dinosaurs
-        dino.walk()     # updates its position
-        SCREEN.blit(image, (dino.x, dino.y))    # draws the dino
+    for dino in dinosaurs:                          # loops through list of dinosaurs
+        dino.rush()                                 # determines speed
+        dino.walk()                                 # updates its position
+        dino.starve()
+        dino.reaper()
+        SCREEN.blit(image, (dino.x, dino.y))        # draws the dino
 
-    pygame.display.flip()  # actually draws all that stuff.
-    clock.tick(60)  # limits FPS by ticking forward a bit at a time
+    pygame.display.flip()                           # actually draws all that stuff.
+    clock.tick(30)                                  # limits FPS by ticking forward a bit at a time
 
-pygame.quit  # if you exit the loop (done = true) then game closes
+pygame.quit                                         # if you exit the loop (done = true) then game closes
