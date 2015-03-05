@@ -1,50 +1,48 @@
 import pygame                                           # yay pygame
-                                     
 
-# ------- initial conditions -------
 
 class dinoKillMain:
     '''The Main dinoKill Class- handles initialization
        and creating game'''
-    def __init__(self,width=500,height=500):
+    def __init__(self, width=500, height=500):
         pygame.init()                                   # starts the... uh... game.
-        self.clock = pygame.time.Clock()                             # lets us tick forward time without depending on computer lag
-        
+        self.clock = pygame.time.Clock()                # lets us tick forward time without depending on computer lag
+
         self.controller = Controller()
-        self.width = width                                           # sets width of screen (as a variable so we can use it later)
-        self.height = height                                           # sets height
+        self.width = width                              # sets width of screen (as a variable so we can use it later)
+        self.height = height                            # sets height
         self.screen = pygame.display.set_mode((self.width, self.height))    # makes screen thing so we can make it green later
-        
-        WHITE = (255, 255, 255)                                 # Define colors so we can use them later
-        BLACK = (0, 0, 0)
-        self.green = (0, 170, 0)
 
-        self.image = pygame.image.load("plain_longneck.png")   # sets dinosaur image
-        img_w, img_h = self.image.get_size()                         # gets size of image so we know where the edges are
+        self.green = (0, 170, 0)                        #define colors
 
-        self.dinosaurs = []                                          # initializes list of dinosaurs
-    
+        self.image = pygame.image.load("transparent_longneck.png")   # sets dinosaur image
+        img_w, img_h = self.image.get_size()            # gets size of image so we know where the edges are
+
+        self.dinosaurs = []                             # initializes list of dinosaurs
 
     def mainLoop(self):
         '''This is the main loop of the game'''
-        done = False                                # initializes for main while loop
+        done = False                                    # initializes for main while loop
         while not done:
             # takes user input
             self.controller.checkInput()
             view = DinoView()
             view.redraw()
-            for dino in MainWindow.dinosaurs:                          # loops through list of dinosaurs
+            for dino in MainWindow.dinosaurs:           # loops through list of dinosaurs
                 dino.update()
-            pygame.display.flip()                           # actually draws all that stuff.
-            self.clock.tick(30)                                  # limits FPS by ticking forward a bit at a time
+            pygame.display.flip()                       # actually draws all that stuff.
+            self.clock.tick(30)                         # limits FPS by ticking forward a bit at a time
         pygame.quit
         sys.exit()
+
 
 class DinoView():
     def __init__(self,width=500,height=500):
         pass
+
     def redraw(self):
-        MainWindow.screen.fill(MainWindow.green)                              # makes green background first
+        MainWindow.screen.fill(MainWindow.green)        # makes green background first
+
 
 class Controller():
     def __init__(self):
@@ -52,7 +50,7 @@ class Controller():
     def checkInput(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:               # If user clicked close
-                done = True                            # gets out of the loop
+                done = True                             # gets out of the loop
                 sys.exit()
             elif event.type == pygame.KEYDOWN:          # If user pressed a key
                 if event.key == pygame.K_ESCAPE:        # escape key is an escape   
@@ -61,7 +59,7 @@ class Controller():
             elif event.type == pygame.MOUSEBUTTONDOWN:  # when mouse button is clicked
                 if pygame.mouse.get_pressed()[2]:       # right mouse button click
                     dinosaur = Dino(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])   # make a dinosaur
-                    MainWindow.dinosaurs.append(dinosaur)          # this line amuses me for no reason
+                    MainWindow.dinosaurs.append(dinosaur)    # add dino to list of all dinos
 
 
 class Dino():
@@ -124,10 +122,6 @@ class Dino():
         self.starve()
         self.reaper()
         MainWindow.screen.blit(MainWindow.image, (self.x, self.y))        # draws the dino
-
-
-
-
 
 if __name__ == "__main__":
     MainWindow = dinoKillMain()
