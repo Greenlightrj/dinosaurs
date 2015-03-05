@@ -20,46 +20,44 @@ class dinoKillMain:
 
         self.dinosaurs = []                             # initializes list of dinosaurs
 
-    def mainLoop(self):
+    def mainLoop(self, window):
         '''This is the main loop of the game'''
-        done = False                                    # initializes for main while loop
-        while not done:
+        self.done = False                                    # initializes for main while loop
+        while not self.done:
             # takes user input
-            self.controller.checkInput()
+            self.controller.checkInput(self)
             view = DinoView()
-            view.redraw()
-            for dino in MainWindow.dinosaurs:           # loops through list of dinosaurs
-                dino.update()
+            view.redraw(self)
+            for dino in window.dinosaurs:           # loops through list of dinosaurs
+                dino.update(window)
             pygame.display.flip()                       # actually draws all that stuff.
             self.clock.tick(30)                         # limits FPS by ticking forward a bit at a time
-        pygame.quit
-        sys.exit()
+        pygame.quit()
 
 
 class DinoView():
-    def __init__(self,width=500,height=500):
+    def __init__(self, width=500, height=500):
         pass
 
-    def redraw(self):
-        MainWindow.screen.fill(MainWindow.green)        # makes green background first
+    def redraw(self, window):
+        window.screen.fill(window.green)        # makes green background first
 
 
 class Controller():
     def __init__(self):
         pass
-    def checkInput(self):
+
+    def checkInput(self, window):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:               # If user clicked close
-                done = True                             # gets out of the loop
-                sys.exit()
+                window.done = True
             elif event.type == pygame.KEYDOWN:          # If user pressed a key
                 if event.key == pygame.K_ESCAPE:        # escape key is an escape   
-                    done = True
-                    sys.exit()
+                    window.done =  True
             elif event.type == pygame.MOUSEBUTTONDOWN:  # when mouse button is clicked
                 if pygame.mouse.get_pressed()[2]:       # right mouse button click
                     dinosaur = Dino(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])   # make a dinosaur
-                    MainWindow.dinosaurs.append(dinosaur)    # add dino to list of all dinos
+                    window.dinosaurs.append(dinosaur)    # add dino to list of all dinos
 
 
 class Dino():
@@ -81,12 +79,12 @@ class Dino():
         """
         self.speed = self.hunger/30.0 + 0.5
 
-    def walk(self):
+    def walk(self, window):
         """
         updates position of dinosaur based on speed
         makes dinosaur bounce off walls
         """
-        if self.x > MainWindow.width-40:             # bounce off right edge
+        if self.x > window.width-40:             # bounce off right edge
             self.xspeed = -1*self.speed
         elif self.x < 1:                    # bounce off left edge
             self.xspeed = 1*self.speed
@@ -94,7 +92,7 @@ class Dino():
             self.xspeed = cmp(self.xspeed, 0)*self.speed  # update speed
         if self.y < 1:                      # bounce off top edge
             self.yspeed = 1 * self.speed
-        elif self.y > MainWindow.height - 40:         # bounce off bottom edge
+        elif self.y > window.height - 40:         # bounce off bottom edge
             self.yspeed = -1 * self.speed
         else:
             self.yspeed = cmp(self.yspeed, 0)*self.speed  # update speed
@@ -110,19 +108,20 @@ class Dino():
         else:
             self.alive = False
 
-    def reaper(self):
+    def reaper(self, window):
         """
         gets rid of dead dinosaurs
         """
         if self.alive == False:
-            MainWindow.dinosaurs.remove(self)
-    def update(self):
+            window.dinosaurs
+
+    def update(self, window):
         self.rush()                                 # determines speed
-        self.walk()                                 # updates its position
+        self.walk(window)                                 # updates its position
         self.starve()
-        self.reaper()
+        self.reaper(window)
         MainWindow.screen.blit(MainWindow.image, (self.x, self.y))        # draws the dino
 
 if __name__ == "__main__":
     MainWindow = dinoKillMain()
-    MainWindow.mainLoop()
+    MainWindow.mainLoop(MainWindow)
