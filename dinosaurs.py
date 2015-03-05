@@ -113,14 +113,14 @@ class Dino():
         gets rid of dead dinosaurs
         """
         if self.alive == False:
-            window.dinosaurs
+            window.dinosaurs.remove(self)
 
     def update(self, window):
         self.rush()                                 # determines speed
         self.walk(window)                                 # updates its position
         self.starve()
         self.reaper(window)
-        MainWindow.screen.blit(MainWindow.image, (self.x, self.y))        # draws the dino
+        window.screen.blit(window.image, (self.x, self.y))        # draws the dino
 
 if __name__ == "__main__":
     MainWindow = dinoKillMain()
