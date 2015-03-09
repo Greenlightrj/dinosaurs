@@ -41,12 +41,14 @@ class dinoKillMain:
         sys.exit()
 
 class DinoView():
+    """ Draws things so that we can see them!"""
     def __init__(self,width=500,height=500):
         pass
     def redraw(self):
         MainWindow.screen.fill(MainWindow.green)                              # makes green background first
 
 class Controller():
+    """Does things based on user input"""
     def __init__(self):
         pass
     def checkInput(self):
@@ -65,6 +67,10 @@ class Controller():
 
 
 class Dino():
+    """
+    This is where we make dinosaurs
+    """
+
     def __init__(self, x, y):
         """
         dinos start alive with 1 hunger
