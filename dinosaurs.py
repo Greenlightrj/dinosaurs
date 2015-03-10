@@ -54,29 +54,6 @@ class DinoView(object):
         self.screen.fill(self.green)        # makes green background first
 
 
-    def mainLoop(self):
-        '''This is the main loop of the game'''
-        done = False                                # initializes for main while loop
-        while not done:
-            # takes user input
-            self.controller.checkInput()
-            view = DinoView()
-            view.redraw()
-            for dino in MainWindow.dinosaurs:                          # loops through list of dinosaurs
-                dino.update()
-            pygame.display.flip()                           # actually draws all that stuff.
-            self.clock.tick(30)                                  # limits FPS by ticking forward a bit at a time
-        pygame.quit
-        sys.exit()
-
-class DinoView():
-    """ Draws things so that we can see them!"""
-    def __init__(self,width=500,height=500):
-        pass
-    def redraw(self):
-        MainWindow.screen.fill(MainWindow.green)                              # makes green background first
-
-
 class Controller():
     """Does things based on user input"""
     def __init__(self):
