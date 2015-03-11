@@ -78,14 +78,7 @@ class Controller():
                 if pygame.mouse.get_pressed()[2]:       # right mouse button click
                     dinosaur = Dino(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], window)   # make a dinosaur
                     window.model.dinosaurs.append(dinosaur)    # add dino to list of all dinos
-                elif pygame.mouse.get_pressed()[1]:     # left mouse button click
-                    for dino in window.model.dinosaurs:
-                        if dino.hitbox.collidepoint(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]):
-                            if dino.hunger > 30:
-                                dino.hunger -= 30
-                            else:
-                                dino.hunger = 1
-
+                
 
 class Dino():
     """
@@ -104,7 +97,6 @@ class Dino():
         self.xspeed = 1
         self.yspeed = 1
         self.speed = 1
-        self.hitbox = window.image.get_rect()
 
     def rush(self):
         """
