@@ -1,5 +1,6 @@
 import pygame                                           # yay pygame
-
+from math import sin, cos, atan2, hypot
+import random
 
 class dinoKillMain():
     '''The Main dinoKill Class- handles initialization
@@ -82,8 +83,8 @@ class DinoView():
         self.screen.fill(self.green)        # makes green background first
         window.model.predators.draw(window.view.screen)
         for dino in window.model.predators:
-            pygame.draw.rect(self.screen, self.black, [dino.x, dino.y + 40, 40, 5]) # the location is [ x from left , y from top, width, height]
-            pygame.draw.rect(self.screen, dino.health, [dino.x, dino.y + 40, dino.hunger*0.4, 5])
+            pygame.draw.rect(self.screen, self.black, [dino.rect.x, dino.rect.y + 40, 40, 5]) # the location is [ x from left , y from top, width, height]
+            pygame.draw.rect(self.screen, dino.health, [dino.rect.x, dino.rect.y + 40, dino.hunger*0.4, 5])
         window.model.food.draw(window.view.screen)
         pygame.display.flip()                       # actually draws all that stuff.
 
@@ -101,7 +102,6 @@ class Controller():
                     window.done = True
             elif event.type == pygame.MOUSEBUTTONDOWN:  # when mouse button is clicked
                 if pygame.mouse.get_pressed()[0]:     # left mouse button click
-                    print 'click'
                     Human(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], window)   # make a human
                 elif pygame.mouse.get_pressed()[2]:       # right mouse button click
                     Dino(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], window)   # make a dinosaur
@@ -120,16 +120,20 @@ class Dino(pygame.sprite.Sprite):
         dinos start alive with 1 hunger
         """
         pygame.sprite.Sprite.__init__(self, window.model.predators) #puts dino in list of dinos
-        self.x = x
+        self.image = window.longneck
+        self.rect = self.image.get_rect()
+        self.x = x  #actual position, can be float
         self.y = y
+        self.rect.x = x     #integer position for drawing
+        self.rect.y = y
         self.living = True
         self.hunger = 1
         self.health = window.view.dkgrn
+        self.angle = random.randrange(-314, 314)
         self.xspeed = 1
         self.yspeed = 1
         self.speed = 1
-        self.image = window.longneck
-        self.rect = self.image.get_rect()
+
 
     def rush(self):
         """
@@ -137,27 +141,34 @@ class Dino(pygame.sprite.Sprite):
         """
         self.speed = self.hunger/30.0 + 0.5
 
+    def hunt(self, window):
+        """
+        lets dino track toward humans within range
+        range is based on hunger
+        """
+        for man in window.model.food:
+            if hypot(self.x - man.x, self.y - man.y) < self.hunger*5:
+                self.angle = 100*atan2(man.y - self.y, man.x - self.x)
+
     def walk(self, window):
         """
         updates position of dinosaur based on speed
         makes dinosaur bounce off walls
         """
-        if self.x > window.view.width-40:             # bounce off right edge
-            self.xspeed = -1*self.speed
+        if self.x > window.view.width - 40:             # bounce off right edge
+            self.angle = random.randrange(157,471)
         elif self.x < 1:                    # bounce off left edge
-            self.xspeed = 1*self.speed
-        else:
-            self.xspeed = cmp(self.xspeed, 0)*self.speed  # update speed
+            self.angle = random.randrange(-157,157)
         if self.y < 1:                      # bounce off top edge
-            self.yspeed = 1 * self.speed
+            self.angle = random.randrange(0, 314)
         elif self.y > window.view.height - 40:         # bounce off bottom edge
-            self.yspeed = -1 * self.speed
-        else:
-            self.yspeed = cmp(self.yspeed, 0)*self.speed  # update speed
+            self.angle = random.randrange(-314,0)
+        self.yspeed = sin(self.angle/100.0)*self.speed  # update speed
+        self.xspeed = cos(self.angle/100.0)*self.speed  # update speed
         self.x = self.x + self.xspeed
         self.y = self.y + self.yspeed
-        self.rect.x = self.x
-        self.rect.y = self.y
+        self.rect.x = int(self.x)
+        self.rect.y = int(self.y)
 
     def starve(self, window):
         """
@@ -184,6 +195,7 @@ class Dino(pygame.sprite.Sprite):
 
     def update(self, window):
         self.rush()                            # determines speed
+        self.hunt(window)
         self.walk(window)                      # updates its position
         self.starve(window)
         self.reaper(window)
@@ -198,18 +210,18 @@ class Human(pygame.sprite.Sprite):
 
     def __init__(self, x, y, window):
         pygame.sprite.Sprite.__init__(self, window.model.food)  #puts human in list of humans
-        self.x = x
-        self.y = y
         self.image = window.food
         self.rect = self.image.get_rect()
-        self.rect.x = self.x
-        self.rect.y = self.y
+        self.rect.x = x
+        self.rect.y = y
+        self.x = x
+        self.y = y
 
     def update(self):
         self.x = self.x
         self.y = self.y
-        self.rect.x = self.x
-        self.rect.y = self.y
+        self.rect.x = int(self.x)
+        self.rect.y = int(self.y)
 
 if __name__ == "__main__":
     MainWindow = dinoKillMain()
