@@ -7,15 +7,13 @@ class dinoKillMain():
     def __init__(self):
         pygame.init()                                   # starts the... uh... game.
         self.clock = pygame.time.Clock()                # lets us tick forward time without depending on computer lag
-
         self.controller = Controller()
-        self.model = DinoList()
+        self.model = Model()
         self.view = DinoView(self)
 
         self.longneck = pygame.image.load("transparent_longneck.png")   # sets dinosaur image
-        ln_w, ln_h = self.longneck.get_size()            # gets size of image so we know where the edges are
 
-        self.food = pygame.image.load("")
+        self.food = pygame.image.load("man.png")
 
     def mainLoop(self):
         '''This is the main loop of the game'''
@@ -28,16 +26,25 @@ class dinoKillMain():
         pygame.quit()
 
 
-#class Model(object):
-    #"""
-    #Contains and updates the lists of all the objects bouncing around
-    #"""
-    #def __init__(self):
-    #    self.dinosaurs = []                             # initializes list of dinosaurs
+class Model(object):
+    """holds the lists and updates"""
+    def __init__(self):
+        self.predators = DinoList()
+        self.food = HumanList()
 
-    #def update(self, window):
-    #    for dino in self.dinosaurs:           # loops through list of dinosaurs
-    #        dino.update(window)
+    def update(self, window):
+        self.predators.update(window)
+        self.food.update()
+
+        for dino in self.predators:
+            noms = pygame.sprite.spritecollide(dino, self.food, 0, collided = None)
+            for man in noms:
+                if dino.hunger > 30:
+                    dino.hunger -= 30
+                else:
+                    dino.hunger = 1
+                man.kill()
+
 
 class DinoList(pygame.sprite.Group):
     """
@@ -47,6 +54,12 @@ class DinoList(pygame.sprite.Group):
     .remove removes a sprite from group
     .update runs update method of every sprite in group
     .draw blits the image of every sprite in group
+    """
+
+
+class HumanList(pygame.sprite.Group):
+    """
+    list of humans
     """
 
 
@@ -67,10 +80,11 @@ class DinoView():
 
     def redraw(self, window):
         self.screen.fill(self.green)        # makes green background first
-        window.model.draw(window.view.screen)
-        for dino in window.model: 
+        window.model.predators.draw(window.view.screen)
+        for dino in window.model.predators:
             pygame.draw.rect(self.screen, self.black, [dino.x, dino.y + 40, 40, 5]) # the location is [ x from left , y from top, width, height]
             pygame.draw.rect(self.screen, dino.health, [dino.x, dino.y + 40, dino.hunger*0.4, 5])
+        window.model.food.draw(window.view.screen)
         pygame.display.flip()                       # actually draws all that stuff.
 
 class Controller():
@@ -86,17 +100,12 @@ class Controller():
                 if event.key == pygame.K_ESCAPE:        # escape key is an escape   
                     window.done = True
             elif event.type == pygame.MOUSEBUTTONDOWN:  # when mouse button is clicked
-                if pygame.mouse.get_pressed()[2]:       # right mouse button click
+                if pygame.mouse.get_pressed()[0]:     # left mouse button click
+                    print 'click'
+                    Human(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], window)   # make a human
+                elif pygame.mouse.get_pressed()[2]:       # right mouse button click
                     Dino(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], window)   # make a dinosaur
-                elif pygame.mouse.get_pressed()[1]:     # left mouse button click
-                    for dino in window.model:
-                        if dino.rect.collidepoint(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]):
-                            if dino.hunger > 30:
-                                dino.hunger -= 30
-                            else:
-                                dino.hunger = 1
-
-
+                
 class Dino(pygame.sprite.Sprite):
     """
     This is where we make dinosaurs
@@ -110,7 +119,7 @@ class Dino(pygame.sprite.Sprite):
         """
         dinos start alive with 1 hunger
         """
-        pygame.sprite.Sprite.__init__(self, window.model) #puts dino in list of dinos
+        pygame.sprite.Sprite.__init__(self, window.model.predators) #puts dino in list of dinos
         self.x = x
         self.y = y
         self.living = True
@@ -119,7 +128,7 @@ class Dino(pygame.sprite.Sprite):
         self.xspeed = 1
         self.yspeed = 1
         self.speed = 1
-        self.image = window.image
+        self.image = window.longneck
         self.rect = self.image.get_rect()
 
     def rush(self):
@@ -174,10 +183,11 @@ class Dino(pygame.sprite.Sprite):
             self.kill()
 
     def update(self, window):
-        self.rush()                                 # determines speed
-        self.walk(window)                                 # updates its position
+        self.rush()                            # determines speed
+        self.walk(window)                      # updates its position
         self.starve(window)
         self.reaper(window)
+
 
 class Human(pygame.sprite.Sprite):
     """This is where we make humans
@@ -187,15 +197,20 @@ class Human(pygame.sprite.Sprite):
     .alive  (checks to see if belonging to any groups)"""
 
     def __init__(self, x, y, window):
-        pygame.sprite.Sprite.__init__(self, window.model) #puts dino in list of dinos
+        pygame.sprite.Sprite.__init__(self, window.model.food)  #puts human in list of humans
         self.x = x
         self.y = y
-        self.xspeed = 0
-        self.yspeed = 0
-        self.speed = 0
-        self.image = window.longneck
+        self.image = window.food
         self.rect = self.image.get_rect()
-        
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+    def update(self):
+        self.x = self.x
+        self.y = self.y
+        self.rect.x = self.x
+        self.rect.y = self.y
+
 if __name__ == "__main__":
     MainWindow = dinoKillMain()
     MainWindow.mainLoop()
