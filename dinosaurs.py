@@ -13,6 +13,7 @@ class dinoKillMain():
         self.view = DinoView(self)
 
         self.longneck = pygame.image.load("transparent_longneck.png")   # sets dinosaur image
+        self.baby = pygame.image.load("baby_longneck.png")              # sets baby dino image
 
         self.food = pygame.image.load("man.png")
 
@@ -26,15 +27,16 @@ class dinoKillMain():
             self.clock.tick(30)                         # limits FPS by ticking forward a bit at a time
         pygame.quit()
 
-
 class Model(object):
     """holds the lists and updates"""
     def __init__(self):
         self.predators = DinoList()
+        self.baby_predators = BabyDinoList()
         self.food = HumanList()
 
     def update(self, window):
         self.predators.update(window)
+        self.baby_predators.update(window)
         self.food.update(window)
 
         for dino in self.predators:
@@ -45,7 +47,14 @@ class Model(object):
                 else:
                     dino.hunger = 1
                 man.kill()
-
+        for dino in self.baby_predators:
+            noms = pygame.sprite.spritecollide(dino, self.food, 0, collided = None)
+            for man in noms:
+                if dino.hunger > 30:
+                    dino.hunger -= 30
+                else:
+                    dino.hunger = 1
+                man.kill()
 
 class DinoList(pygame.sprite.Group):
     """
@@ -57,12 +66,15 @@ class DinoList(pygame.sprite.Group):
     .draw blits the image of every sprite in group
     """
 
-
 class HumanList(pygame.sprite.Group):
     """
     list of humans
     """
 
+class BabyDinoList(pygame.sprite.Group):
+    """
+    list of baby dinosaurs
+    """
 
 class DinoView():
     """
@@ -82,15 +94,21 @@ class DinoView():
 
     def redraw(self, window):
         self.screen.fill(self.green)        # makes green background first
-        self.text = self.font.render('Dinosaurs alive: ' + str(len(MainWindow.model.predators)),True, self.dkgrn)
+        self.text = self.font.render('Live Adult Dinosaurs: ' + str(len(MainWindow.model.predators)),True, self.black)
+        self.instructions = self.font.render('Right click to add a dinosaur. Left click to add a person.', True, self.black)
         window.model.predators.draw(window.view.screen)
+        window.model.baby_predators.draw(window.view.screen)
         for dino in window.model.predators:
             pygame.draw.rect(self.screen, self.black, [dino.rect.x, dino.rect.y + 40, 40, 5]) # the location is [ x from left , y from top, width, height]
             pygame.draw.rect(self.screen, dino.health, [dino.rect.x, dino.rect.y + 40, dino.hunger*0.4, 5])
+        for dino in window.model.baby_predators:
+            pygame.draw.rect(self.screen, self.black, [dino.rect.x-10, dino.rect.y + 25, 40, 5]) # the location is [ x from left , y from top, width, height]
+            pygame.draw.rect(self.screen, dino.health, [dino.rect.x-10, dino.rect.y + 25, dino.hunger*0.4, 5])
         window.model.food.draw(window.view.screen)
         self.screen.blit(self.text,(10,10))
+        if pygame.time.get_ticks()<=15000:
+            self.screen.blit(self.instructions,(85,450))
         pygame.display.flip()                       # actually draws all that stuff.
-        
 
 class Controller():
     """Does things based on user input"""
@@ -108,7 +126,7 @@ class Controller():
                 if pygame.mouse.get_pressed()[0]:     # left mouse button click
                     Human(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], window)   # make a human
                 elif pygame.mouse.get_pressed()[2]:       # right mouse button click
-                    Dino(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], window)   # make a dinosaur
+                    BabyDino(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], window)   # make a dinosaur
                 
 class Dino(pygame.sprite.Sprite):
     """
@@ -137,6 +155,7 @@ class Dino(pygame.sprite.Sprite):
         self.xspeed = 1
         self.yspeed = 1
         self.speed = 1
+        self.age = 2
 
     def rush(self):
         """
@@ -196,13 +215,51 @@ class Dino(pygame.sprite.Sprite):
         if self.living is False:
             self.kill()
 
+
     def update(self, window):
         self.rush()                            # determines speed
         self.hunt(window)
         self.walk(window)                      # updates its position
         self.starve(window)
         self.reaper(window)
+        self.age += 1
 
+class BabyDino(Dino):
+    def __init__(self, x, y, window):
+        """
+        dinos start alive with 1 hunger
+        """
+        pygame.sprite.Sprite.__init__(self, window.model.baby_predators) #puts dino in list of dinos
+        self.image = window.baby
+        self.dino_size = self.image.get_rect().size[1]
+        self.rect = self.image.get_rect()
+        self.x = x  #actual position, can be float
+        self.y = y
+        self.rect.x = x     #integer position for drawing
+        self.rect.y = y
+        self.living = True
+        self.hunger = 1
+        self.health = window.view.dkgrn
+        self.angle = random.randrange(-314, 314)
+        self.xspeed = 1
+        self.yspeed = 1
+        self.speed = 1
+        self.age = 0
+
+    def update(self, window):
+        self.rush()                            # determines speed
+        self.hunt(window)
+        self.walk(window)                      # updates its position
+        self.starve(window)
+        self.reaper(window)
+        self.age += 1
+        if self.age == 600:
+            self.growUp(window)
+
+    def growUp(self,window):
+        Dino(self.x,self.y,window)
+        self.living = False
+        self.reaper(window)
 
 class Human(pygame.sprite.Sprite):
     """This is where we make humans
