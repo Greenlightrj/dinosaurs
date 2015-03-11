@@ -78,15 +78,19 @@ class DinoView():
         self.red = (200, 0, 0)
         self.orange = (250, 65, 0)
         self.dkgrey = (20, 20, 20)
+        self.font = pygame.font.SysFont(None,20)
 
     def redraw(self, window):
         self.screen.fill(self.green)        # makes green background first
+        self.text = self.font.render('Dinosaurs alive: ' + str(len(MainWindow.model.predators)),True, self.dkgrn)
         window.model.predators.draw(window.view.screen)
         for dino in window.model.predators:
             pygame.draw.rect(self.screen, self.black, [dino.rect.x, dino.rect.y + 40, 40, 5]) # the location is [ x from left , y from top, width, height]
             pygame.draw.rect(self.screen, dino.health, [dino.rect.x, dino.rect.y + 40, dino.hunger*0.4, 5])
         window.model.food.draw(window.view.screen)
+        self.screen.blit(self.text,(10,10))
         pygame.display.flip()                       # actually draws all that stuff.
+        
 
 class Controller():
     """Does things based on user input"""
