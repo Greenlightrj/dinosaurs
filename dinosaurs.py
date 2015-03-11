@@ -48,16 +48,18 @@ class DinoView(object):
         self.height = height                            # sets height
         self.screen = pygame.display.set_mode((self.width, self.height))    # makes screen thing so we can make it green later
 
-        self.green = (0, 170, 0)                        #define colors
+        self.green = (0, 170, 0)
+        self.dkgrn = (16, 65, 0)                       #define colors
         self.black = (0, 0, 0)
         self.red = (200, 0, 0)
+        self.orange = (250, 65, 0)
 
     def redraw(self, window):
         self.screen.fill(self.green)        # makes green background first
         for dino in window.model.dinosaurs: # draws the dinosaurs
             window.view.screen.blit(window.image, (dino.x, dino.y))
             pygame.draw.rect(self.screen, self.black, [dino.x, dino.y + 40, 40, 5]) # the location is [ x from left , y from top, width, height]
-            pygame.draw.rect(self.screen, self.red, [dino.x, dino.y + 40, dino.hunger*0.4, 5])
+            pygame.draw.rect(self.screen, dino.health, [dino.x, dino.y + 40, dino.hunger*0.4, 5])
         pygame.display.flip()                       # actually draws all that stuff.
 
 class Controller():
@@ -74,7 +76,7 @@ class Controller():
                     window.done = True
             elif event.type == pygame.MOUSEBUTTONDOWN:  # when mouse button is clicked
                 if pygame.mouse.get_pressed()[2]:       # right mouse button click
-                    dinosaur = Dino(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])   # make a dinosaur
+                    dinosaur = Dino(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], window)   # make a dinosaur
                     window.model.dinosaurs.append(dinosaur)    # add dino to list of all dinos
 
 
@@ -83,12 +85,13 @@ class Dino():
     This is where we make dinosaurs
     """
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, window):
         """
         dinos start alive with 1 hunger
         """
         self.alive = True
         self.hunger = 1
+        self.health = window.view.dkgrn
         self.x = x
         self.y = y
         self.xspeed = 1
@@ -121,11 +124,18 @@ class Dino():
         self.x = self.x + self.xspeed
         self.y = self.y + self.yspeed
 
-    def starve(self):
+    def starve(self, window):
         """
         updates dinosaur hunger
         """
-        if self.hunger < 100:
+        if self.hunger < 30:
+            self.health = window.view.dkgrn
+            self.hunger += 0.03
+        elif self.hunger < 75:
+            self.health = window.view.orange
+            self.hunger += 0.03
+        elif self.hunger < 100:
+            self.health = window.view.red
             self.hunger += 0.03
         else:
             self.alive = False
@@ -140,7 +150,7 @@ class Dino():
     def update(self, window):
         self.rush()                                 # determines speed
         self.walk(window)                                 # updates its position
-        self.starve()
+        self.starve(window)
         self.reaper(window)
 
 if __name__ == "__main__":
