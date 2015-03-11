@@ -224,7 +224,7 @@ class Human(pygame.sprite.Sprite):
         humans run from nearest dinosaur
         there's a problem with this somewhere.. it doesn't work if there aren't dinos
         """
-        if window.model.predators.sprites()> 0:     #if there are any dinos
+        if len(window.model.predators.sprites()) > 0:     #if there are any dinos
             dist = 1000000
             for dino in window.model.predators:
                 if hypot(dino.x - self.x, dino.y - self.y) < dist:
