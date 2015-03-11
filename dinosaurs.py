@@ -22,7 +22,7 @@ class dinoKillMain(object):
             self.controller.checkInput(self)                #checks user input
             self.view.redraw(self)
             self.model.update(window)
-            pygame.display.flip()                       # actually draws all that stuff.
+
             self.clock.tick(30)                         # limits FPS by ticking forward a bit at a time
         pygame.quit()
 
@@ -49,10 +49,16 @@ class DinoView(object):
         self.screen = pygame.display.set_mode((self.width, self.height))    # makes screen thing so we can make it green later
 
         self.green = (0, 170, 0)                        #define colors
+        self.black = (0, 0, 0)
+        self.red = (200, 0, 0)
 
     def redraw(self, window):
         self.screen.fill(self.green)        # makes green background first
-
+        for dino in window.model.dinosaurs: # draws the dinosaurs
+            window.view.screen.blit(window.image, (dino.x, dino.y))
+            pygame.draw.rect(self.screen, self.black, [dino.x, dino.y + 40, 40, 5]) # the location is [ x from left , y from top, width, height]
+            pygame.draw.rect(self.screen, self.red, [dino.x, dino.y + 40, dino.hunger*0.4, 5])
+        pygame.display.flip()                       # actually draws all that stuff.
 
 class Controller():
     """Does things based on user input"""
@@ -136,7 +142,6 @@ class Dino():
         self.walk(window)                                 # updates its position
         self.starve()
         self.reaper(window)
-        window.view.screen.blit(window.image, (self.x, self.y))        # draws the dino
 
 if __name__ == "__main__":
     MainWindow = dinoKillMain()
