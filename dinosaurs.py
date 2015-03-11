@@ -124,6 +124,7 @@ class Dino(pygame.sprite.Sprite):
         """
         pygame.sprite.Sprite.__init__(self, window.model.predators) #puts dino in list of dinos
         self.image = window.longneck
+        self.dino_size = self.image.get_rect().size[1]
         self.rect = self.image.get_rect()
         self.x = x  #actual position, can be float
         self.y = y
@@ -157,7 +158,7 @@ class Dino(pygame.sprite.Sprite):
         updates position of dinosaur based on speed
         makes dinosaur bounce off walls
         """
-        if self.x > window.view.width - 40:             # bounce off right edge
+        if self.x > window.view.width - self.dino_size:             # bounce off right edge
             self.angle = random.randrange(157,471)
         elif self.x < 1:                    # bounce off left edge
             self.angle = random.randrange(-157,157)
