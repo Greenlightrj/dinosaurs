@@ -35,7 +35,7 @@ class Model(object):
 
     def update(self, window):
         self.predators.update(window)
-        self.food.update()
+        self.food.update(window)
 
         for dino in self.predators:
             noms = pygame.sprite.spritecollide(dino, self.food, 0, collided = None)
@@ -216,12 +216,54 @@ class Human(pygame.sprite.Sprite):
         self.rect.y = y
         self.x = x
         self.y = y
+        self.angle = random.randint(-314, 314)
+        self.speed = 1
+        self.xspeed = 1
+        self.yspeed = 1
 
-    def update(self):
-        self.x = self.x
-        self.y = self.y
+    def flee(self, window):
+        """
+        humans run from nearest dinosaur
+        """
+        if window.model.predators.sprites()>0:
+            print 'flee'
+            dist = 1000000
+            for dino in window.model.predators:
+                if hypot(dino.x - self.x, dino.y - self.y) < dist:
+                    dist = hypot(dino.x - self.x, dino.y - self.y)
+                    nearest = dino
+            self.angle = 100*atan2(self.y - nearest.y, self.x - nearest.x)
+
+
+    def run(self, window):
+        """
+        humans walk around randomly if there are no dinos
+        humans can escape via the edges
+        """
+        if self.x > window.view.width:
+            self.kill()
+        elif self.x < 1:
+            self.kill()
+        if self.y < 1:
+            self.kill()
+        elif self.y > window.view.height:
+            self.kill()
+        self.yspeed = sin(self.angle/100.0)*self.speed  # update speed
+        self.xspeed = cos(self.angle/100.0)*self.speed  # update speed
+        self.x = self.x + self.xspeed
+        self.y = self.y + self.yspeed
         self.rect.x = int(self.x)
         self.rect.y = int(self.y)
+
+    def splat(self, window):
+        """
+        leaves bloodstain and skull for a while
+        """
+        pass
+
+    def update(self, window):
+        self.flee(window)
+        self.run(window)
 
 if __name__ == "__main__":
     MainWindow = dinoKillMain()
