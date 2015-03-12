@@ -261,7 +261,7 @@ class BabyDino(Dino):
         self.starve(window)
         self.reaper(window)
         self.age += 1
-        if self.age == 1300:                     # after 1300 iterations the babies become adults!
+        if self.age >= 1300 and self.hunger <= 10:                     # after 1300 iterations the babies become adults!
             self.growUp(window)
 
     def growUp(self,window):
