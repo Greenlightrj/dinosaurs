@@ -92,7 +92,7 @@ class DinoView():
         self.red = (200, 0, 0)
         self.orange = (250, 65, 0)
         self.dkgrey = (20, 20, 20)
-        self.font = pygame.font.SysFont(None,20)
+        self.font = pygame.font.SysFont(None, 20)
 
     def redraw(self, window):
         self.screen.fill(self.green)        # makes green background first
@@ -254,6 +254,14 @@ class BabyDino(Dino):
         self.speed = 1
         self.age = 0
 
+    def growUp(self, window):
+        """
+        converts baby dino to an adult one
+        """
+        Dino(self.x, self.y, window)
+        self.living = False
+        self.reaper(window)
+
     def update(self, window):
         self.rush()                            # determines speed
         self.hunt(window)
@@ -264,10 +272,7 @@ class BabyDino(Dino):
         if self.age >= 1300 and self.hunger <= 10:                     # after 1300 iterations the babies become adults!
             self.growUp(window)
 
-    def growUp(self,window):
-        Dino(self.x,self.y,window)
-        self.living = False
-        self.reaper(window)
+
 
 class Human(pygame.sprite.Sprite):
     """This is where we make humans
@@ -291,7 +296,7 @@ class Human(pygame.sprite.Sprite):
 
     def flee(self, window):
         """
-        humans run from nearest dinosaur
+        humans run from nearest adult dinosaur
         """
         if len(window.model.predators.sprites()) > 0:     #if there are any dinos
             dist = 1000000

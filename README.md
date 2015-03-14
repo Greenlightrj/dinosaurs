@@ -1,4 +1,4 @@
-This is a dinosaur game made by Meghan Tighe and Rebecca Jordan for Olin's Spring 2015 Software Design course. 
+This is a dinosaur game made by Meghan Tighe and Rebecca Jordan for Olin's Spring 2015 Software Design course. The interactiveprogrammingproject branch is what we turned in for the class, but we're continuing to work on the game.
 
 Before playing:
 -Install Pygame!
