@@ -1,4 +1,5 @@
-import pygame                                           # yay pygame
+import pygame    
+from pygame.locals import RESIZABLE                                       # yay pygame
 from math import sin, cos, atan2, hypot
 import random
 
@@ -84,8 +85,9 @@ class DinoView():
     """
     def __init__(self, window, width=500, height=500):
         self.width = width                              # sets width of screen (as a variable so we can use it later)
-        self.height = height                            # sets height
-        self.screen = pygame.display.set_mode((self.width, self.height))    # makes screen thing so we can make it green later
+        self.height = height  
+        size = (self.width, self.height)                         # sets height
+        self.screen = pygame.display.set_mode(size, RESIZABLE)    # makes screen thing so we can make it green later
         self.green = (0, 170, 0)
         self.dkgrn = (16, 65, 0)                       #define colors
         self.black = (0, 0, 0)
@@ -135,7 +137,12 @@ class Controller():
                     Human(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], window)   # make a human
                 elif pygame.mouse.get_pressed()[2]:       # right mouse button click
                     BabyDino(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], window)   # make a dinosaur
-                
+            elif event.type == pygame.locals.VIDEORESIZE:
+                window.view.screen = pygame.display.set_mode((event.w, event.h), RESIZABLE)
+                window.view.width = event.w
+                window.view.height = event.h
+
+
 class Dino(pygame.sprite.Sprite):
     """
     This is where we make dinosaurs
