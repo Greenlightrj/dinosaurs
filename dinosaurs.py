@@ -1,5 +1,5 @@
 import pygame    
-from pygame.locals import RESIZABLE                                       # yay pygame
+from pygame.locals import RESIZABLE                                       # yay pygame <--Try to avoid too much of this, professionalism is good as Git code serves as a portfolio as well
 from math import sin, cos, atan2, hypot
 import random
 
@@ -7,7 +7,7 @@ class dinoKillMain():
     '''The Main dinoKill Class- handles initialization
        and creating game'''
     def __init__(self):
-        pygame.init()                                   # starts the... uh... game.
+        pygame.init()                                   # Don't need comments for self-commenting code
         self.clock = pygame.time.Clock()                # lets us tick forward time without depending on computer lag
         self.controller = Controller()
         self.model = Model()
@@ -31,7 +31,7 @@ class Model(object):
     """holds the lists and updates"""
     def __init__(self):
         #This initiates the three Sprites we'll be using
-        self.predators = DinoList()
+        self.predators = pygame.sprite.Group()
         self.baby_predators = BabyDinoList()
         self.food = HumanList()
 
@@ -59,7 +59,7 @@ class Model(object):
                     dino.hunger = 1
                 man.kill()
 
-class DinoList(pygame.sprite.Group):
+class DinoList(pygame.sprite.Group): #These seem to be empty classes, can't you define this directly in the code?
     """
     List of dinosaurs
     inherited methods:
@@ -88,8 +88,8 @@ class DinoView():
         self.height = height  
         size = (self.width, self.height)                         # sets height
         self.screen = pygame.display.set_mode(size, RESIZABLE)    # makes screen thing so we can make it green later
-        self.green = (0, 170, 0)
-        self.dkgrn = (16, 65, 0)                       #define colors
+        self.green = (0, 170, 0) 
+        self.dkgrn = (16, 65, 0)                       #define colors <--Can make this into a dictionary
         self.black = (0, 0, 0)
         self.red = (200, 0, 0)
         self.orange = (250, 65, 0)
@@ -200,8 +200,8 @@ class Dino(pygame.sprite.Sprite):
             self.angle = random.randrange(0, 314)
         elif self.y > window.view.height - 40:         # bounce off bottom edge
             self.angle = random.randrange(-314,0)
-        self.yspeed = sin(self.angle/100.0)*self.speed  # update speed
-        self.xspeed = cos(self.angle/100.0)*self.speed  # update speed
+        self.yspeed = sin(self.angle/100.0)*self.speed
+        self.xspeed = cos(self.angle/100.0)*self.speed
         self.x = self.x + self.xspeed
         self.y = self.y + self.yspeed
         self.rect.x = int(self.x)
@@ -306,7 +306,7 @@ class Human(pygame.sprite.Sprite):
         humans run from nearest adult dinosaur
         """
         if len(window.model.predators.sprites()) > 0:     #if there are any dinos
-            dist = 1000000
+            dist = 1000000 #Where is this number coming from? Comments should describe roughly the math happening here
             for dino in window.model.predators:
                 if hypot(dino.x - self.x, dino.y - self.y) < dist:
                     dist = hypot(dino.x - self.x, dino.y - self.y)
